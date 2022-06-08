@@ -8,6 +8,8 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import it.polito.tdp.rivers.model.Model;
+import it.polito.tdp.rivers.model.River;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -25,7 +27,7 @@ public class FXMLController {
     private URL location;
 
     @FXML // fx:id="boxRiver"
-    private ComboBox<?> boxRiver; // Value injected by FXMLLoader
+    private ComboBox<River> boxRiver; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtStartDate"
     private TextField txtStartDate; // Value injected by FXMLLoader
@@ -47,7 +49,38 @@ public class FXMLController {
 
     @FXML // fx:id="txtResult"
     private TextArea txtResult; // Value injected by FXMLLoader
+    @FXML
+    void scelta(ActionEvent event) {
+    	txtResult.clear();
+    	if(boxRiver.getValue()!=null) {
+    	txtEndDate.setText(model.getlastdata(boxRiver.getValue()));
+    	txtStartDate.setText(model.getfirstdata(boxRiver.getValue()));
+    	txtNumMeasurements.setText(""+model.nmisure(boxRiver.getValue()));
+    	txtFMed.setText(""+model.fmed(boxRiver.getValue()));
+    	}else {
+    		txtResult.setText("fiume non inserito");
+    	}
+    }
 
+    @FXML
+    void startsimulazione(ActionEvent event) {
+    	txtResult.clear();
+    	if(boxRiver.getValue()!=null) {
+	    	txtEndDate.setText(model.getlastdata(boxRiver.getValue()));
+	    	txtStartDate.setText(model.getfirstdata(boxRiver.getValue()));
+	    	txtNumMeasurements.setText(""+model.nmisure(boxRiver.getValue()));
+	    	txtFMed.setText(""+model.fmed(boxRiver.getValue()));
+	    	if(txtK.getText()=="") {
+	    		txtResult.setText("k non inserito");
+	    	}else {
+	    		model.simulazione(Double.parseDouble(txtK.getText()), model.fmed(boxRiver.getValue()), boxRiver.getValue().getId());
+	    		model.run();
+	    		txtResult.setText("giorni in cui non si riesce a soddisfare il fabbisogno: "+model.getNgiorniMancatoServizio()+"\n acqua media bacino:  "+model.getAcquaBacinoMedia());
+	    	}
+    	}else {
+    		txtResult.setText("fiume non inserito");
+    	}
+    }
     @FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
         assert boxRiver != null : "fx:id=\"boxRiver\" was not injected: check your FXML file 'Scene.fxml'.";
@@ -62,5 +95,7 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	boxRiver.getItems().addAll(model.getRiverList());
+
     }
 }
